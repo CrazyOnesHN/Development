@@ -14,12 +14,12 @@ GO
 -- Create date: <Create Date, ,>
 -- Description:	<Description, ,>
 -- =============================================
-CREATE FUNCTION [dbo].[C_MM_INCH] 
+CREATE FUNCTION [dbo].[C_MM_INCH]
 (
 	-- Add the parameters for the function here
 	@NumToC		DECIMAL(19,6)
 )
-RETURNS VARCHAR(75) 
+RETURNS VARCHAR(75)
 AS
 BEGIN
 	-- Declare the return variable here
@@ -41,12 +41,12 @@ BEGIN
 	-- Add the T-SQL statements to compute the return value here
 	BEGIN
 
-        --GET THE GREATEST COMMON FACTOR      
+        --GET THE GREATEST COMMON FACTOR
 
         WHILE ((@Num % 2) + (@Denom % 2)) = 0
 
         BEGIN
-            SET @Denom = @Denom / 2 
+            SET @Denom = @Denom / 2
             SET @Num = @Num / 2
         END
 
@@ -57,8 +57,8 @@ BEGIN
             SET @Num = @Num / 5
         END
 
-		SET @OutPut = CASE 
-				WHEN @WholeNumber > 0 THEN CONVERT(VARCHAR, @WholeNumber) 
+		SET @OutPut = CASE
+				WHEN @WholeNumber > 0 THEN CONVERT(VARCHAR, @WholeNumber)
 				ELSE '' END + ' ' + CONVERT(VARCHAR, @Num) + '/' + CONVERT(VARCHAR, @Denom)
 
 	END
@@ -72,5 +72,3 @@ BEGIN
 
 END
 GO
-
-

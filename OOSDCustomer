@@ -16,7 +16,7 @@ GO
 -- =============================================
 CREATE PROCEDURE [dbo].[OOSDCustomer]
 	-- Add the parameters for the stored procedure here
-	@BeginDate		DATETIME, 
+	@BeginDate		DATETIME,
 	@EndDate		DATETIME
 AS
 BEGIN
@@ -27,10 +27,10 @@ BEGIN
     -- Insert statements for procedure here
 	SELECT
 
-	T2.CardName														'Customer',	
+	T2.CardName														'Customer',
 	T2.DocNum														'SO',
 	T1.LineNum,
-	T1.ItemCode,	
+	T1.ItemCode,
 	([dbo].[FETCH_BATCHNO] (T1.ItemCode,T2.DocNum,T2.DocEntry))		'BatchNo.',
 	([dbo].[C_MM_INCH] (T4.SLength1))								'Length(in)',
 	([dbo].[C_MM_INCH] (T4.SWidth1))								'Width(in)',
@@ -45,18 +45,18 @@ BEGIN
 	FROM DLN1 T0
 
 		--FETCH Sales Order
-		RIGHT OUTER JOIN RDR1	T1 ON T1.DocEntry=T0.BaseEntry	AND T1.TrgetEntry=T0.DocEntry	
+		RIGHT OUTER JOIN RDR1	T1 ON T1.DocEntry=T0.BaseEntry	AND T1.TrgetEntry=T0.DocEntry
 		INNER JOIN ORDR T2 ON T2.DocEntry=T1.DocEntry
-		LEFT JOIN OCRD T3 ON T3.CardCode=T2.CardCode	
+		LEFT JOIN OCRD T3 ON T3.CardCode=T2.CardCode
 		INNER JOIN OITM T4 ON T4.ItemCode=T1.ItemCode
 		LEFT  OUTER JOIN OITB T5 ON T5.ItmsGrpCod=T4.ItmsGrpCod
 
-	WHERE 
+	WHERE
 
-		T1.ShipDate >=CONVERT(DATETIME,@BeginDate, 112)	AND	
+		T1.ShipDate >=CONVERT(DATETIME,@BeginDate, 112)	AND
 		T1.ShipDate <=CONVERT(DATETIME,@EndDate, 112)	AND
 		T3.QryGroup1='N'		AND (T1.LineStatus='O'	AND T1.ItemCode LIKE '8%') OR (T1.LineStatus='O'	AND T1.ItemCode LIKE '9%')
-		
+
 	ORDER BY
 
 		T2.DocNum,
@@ -64,5 +64,3 @@ BEGIN
 		T1.ItemCode
 END
 GO
-
-

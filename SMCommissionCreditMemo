@@ -14,12 +14,12 @@ GO
 -- Create date: 04/07/2022
 -- Description:	SM Commission Credit Memo SubReport
 -- =============================================
-CREATE PROCEDURE [dbo].[SMCommissionCreditMemo] 
+CREATE PROCEDURE [dbo].[SMCommissionCreditMemo]
 	-- Add the parameters for the stored procedure here
-	@BeginDate DATETIME, 
+	@BeginDate DATETIME,
 	@EndDate   DATETIME,
 	@SlpCode   INT
-	
+
 AS
 		BEGIN
 			-- SET NOCOUNT ON added to prevent extra result sets from
@@ -33,13 +33,13 @@ AS
 			T4.SlpName,
 			T2.DocNum ,
 			T0.BaseRef,
-			T2.DocDate,	
-			T2.Cardname, 
-			T2.CardCode,	 		
-			T0.LineNum, 
-			T0.ItemCode,	
-			T0.Dscription, 
-			T0.Quantity, 	
+			T2.DocDate,
+			T2.Cardname,
+			T2.CardCode,
+			T0.LineNum,
+			T0.ItemCode,
+			T0.Dscription,
+			T0.Quantity,
 			T0.LineTotal,
 			-- FETCH ITEMS GROUP - COMMISIONS TYPE --
 			CASE
@@ -66,19 +66,17 @@ AS
 
 		WHERE
 
-			T2.DocDate >=@BeginDate AND 
+			T2.DocDate >=@BeginDate AND
 			T2.DocDate <=@EndDate	AND
 			T4.SlpCode=@SlpCode		AND
-			T2.CANCELED ='N'		AND 
-			T0.LineTotal<>0			AND 
+			T2.CANCELED ='N'		AND
+			T0.LineTotal<>0			AND
 			T2.DocType<>'S'
 
-		ORDER BY 
+		ORDER BY
 
 			T0.BaseRef,
 			T2.DocEntry
 
 END
 GO
-
-

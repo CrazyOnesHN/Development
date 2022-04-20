@@ -1,0 +1,42 @@
+USE [KINYO-LIVE]
+GO
+
+/****** Object:  UserDefinedFunction [dbo].[FETCH_BATCHNO]    Script Date: 4/20/2022 3:20:15 PM ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+-- =============================================
+-- Author:		Jose Rivera
+-- Create date: 04/20/2022
+-- Description:	FETCH BATCH NUMBER
+-- =============================================
+CREATE FUNCTION [dbo].[FETCH_BATCHNO]
+(
+	-- Add the parameters for the function here
+	@ItemCode		NVARCHAR(50),
+	@DocNum			INT,
+	@DocEntry		INT
+)
+RETURNS NVARCHAR(35)
+AS
+BEGIN
+	-- Declare the return variable here
+	DECLARE @U_BATCHNO NVARCHAR(35)
+
+	-- Add the T-SQL statements to compute the return value here
+	SELECT @U_BATCHNO=T0.U_BATCHNO
+	
+	FROM  "@BMM_PNMAST"  T0
+	
+	WHERE T0.U_SONUMBER=@DocNum AND T0.U_ITEMCODE=@ItemCode AND T0.U_SODOCENTRY=@DocEntry
+
+	-- Return the result of the function
+	RETURN @U_BATCHNO
+
+END
+GO
+
+

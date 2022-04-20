@@ -1,0 +1,76 @@
+USE [KINYO-LIVE]
+GO
+
+/****** Object:  UserDefinedFunction [dbo].[C_MM_INCH]    Script Date: 4/20/2022 3:19:08 PM ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+-- =============================================
+-- Author:		<Author,,Name>
+-- Create date: <Create Date, ,>
+-- Description:	<Description, ,>
+-- =============================================
+CREATE FUNCTION [dbo].[C_MM_INCH] 
+(
+	-- Add the parameters for the function here
+	@NumToC		DECIMAL(19,6)
+)
+RETURNS VARCHAR(75) 
+AS
+BEGIN
+	-- Declare the return variable here
+	DECLARE @OutPut			VARCHAR(75)
+    DECLARE @WholeNumber	INT
+    DECLARE @Decimal		DECIMAL (25, 10)
+    DECLARE @Num			INT
+    DECLARE @Denom			INT
+    DECLARE @Multiple		INT
+
+	SET @WholeNumber = CAST(@NumToC AS INT)
+	SET @Decimal = @NumToC - @wholenumber
+	SET @Multiple = CAST('1' + REPLICATE('0',LEN(CAST(CAST(REVERSE(SUBSTRING(CAST(@Decimal AS VARCHAR),CHARINDEX('.',CAST(@Decimal AS VARCHAR))+1, LEN(CAST(@Decimal AS VARCHAR)))) AS INT) AS VARCHAR(10)))) AS INT)
+	SET @num = @Multiple * @Decimal
+	SET @Denom = @Multiple
+
+	IF @Num > 0
+
+	-- Add the T-SQL statements to compute the return value here
+	BEGIN
+
+        --GET THE GREATEST COMMON FACTOR      
+
+        WHILE ((@Num % 2) + (@Denom % 2)) = 0
+
+        BEGIN
+            SET @Denom = @Denom / 2 
+            SET @Num = @Num / 2
+        END
+
+        WHILE ((@Num % 5) + (@Denom % 5)) = 0
+
+        BEGIN
+            SET @Denom = @Denom / 5
+            SET @Num = @Num / 5
+        END
+
+		SET @OutPut = CASE 
+				WHEN @WholeNumber > 0 THEN CONVERT(VARCHAR, @WholeNumber) 
+				ELSE '' END + ' ' + CONVERT(VARCHAR, @Num) + '/' + CONVERT(VARCHAR, @Denom)
+
+	END
+
+	ELSE
+	BEGIN
+		SET @OutPut = @WholeNumber
+	END
+	-- Return the result of the function
+	RETURN @OutPut
+
+END
+GO
+
+

@@ -1,0 +1,125 @@
+-- =============================================
+-- Author:		<Author,,Name>
+-- Create date: <Create Date,,>
+-- Description:	<Description,,>
+-- =============================================
+
+WITH ApprovalStatus AS
+(
+	SELECT
+
+		CASE
+			WHEN T1.ObjType=17 THEN 'Sales Order'
+		END DocumentType,
+		T6.CardCode,
+		T6.DocNum					'Document No.',
+
+		(SELECT U_NAME FROM [OUSR] where USERID=T0.UserID)			AS 'Authorizer',
+
+		CASE
+			WHEN T0.Status='W'	THEN 'Pending'
+			WHEN T0.Status='Y'	THEN 'Approved'
+			WHEN T0.Status='N'	THEN 'Rejected'
+		END Status,
+		T0.UpdateDate				AS 'Answer Date',
+		T7.Remarks					AS 'Stage',
+		T0.WddCode,
+		T0.StepCode
+
+
+	FROM  [dbo].[WDD1] T0
+
+		INNER  JOIN [dbo].[OWDD] T1  ON  T1.[WddCode]	= T0.[WddCode]
+		INNER  JOIN [dbo].[OUSR] T2  ON  T2.[USERID]	= T1.[OwnerID]
+		INNER  JOIN [dbo].[OUSR] T3  ON  T3.[USERID]	= T0.[UserID]
+		INNER  JOIN [dbo].[OWTM] T4  ON  T4.[WtmCode]	= T1.[WtmCode]
+		LEFT   JOIN [dbo].[ODRF] T5  ON  T5.[DocEntry]	= T1.[DraftEntry]
+		LEFT   JOIN [dbo].[ORDR] T6  ON  T6.[draftKey]	= T5.[DocEntry]
+		LEFT   JOIN [dbo].[OWST] T7  ON  T7.[WstCode]	= T0.[StepCode]
+
+	WHERE
+
+		T1.WtmCode=23		AND
+		T1.ObjType=17		AND
+		T0.StepCode=20		AND
+		T1.IsDraft='N'		AND
+		T0.Status IN ('Y','W','N')
+
+),
+
+ApprovalDecision AS
+(
+
+	SELECT
+		T0.[WddCode] ,
+		T6.CardCode,
+		T6.DocNum					'Document No.',
+		(SELECT U_NAME FROM [OUSR] where USERID=T0.UserID)			AS 'Authorizer',
+			CASE
+			WHEN T0.Status='W'	THEN 'Pending'
+			WHEN T0.Status='Y'	THEN 'Approved'
+			WHEN T0.Status='N'	THEN 'Rejected'
+
+		END Status,
+		T0.[Remarks] ,
+		T0.[UpdateDate]				AS 'Answer Date',
+		T7.Remarks					AS 'Stage',
+		T0.StepCode
+
+
+
+	FROM [dbo].[WDD1] T0
+
+		INNER  JOIN [dbo].[OWDD] T1  ON  T1.[WddCode] = T0.[WddCode]
+		INNER  JOIN [dbo].[OUSR] T2  ON  T2.[USERID] = T1.[OwnerID]
+		INNER  JOIN [dbo].[OUSR] T3  ON  T3.[USERID] = T0.[UserID]
+		INNER  JOIN [dbo].[OWTM] T4  ON  T4.[WtmCode] = T1.[WtmCode]
+		LEFT   JOIN [dbo].[ODRF] T5  ON  T5.[DocEntry]	= T1.[DraftEntry]
+		LEFT   JOIN [dbo].[ORDR] T6  ON  T6.[draftKey]	= T5.[DocEntry]
+		LEFT   JOIN [dbo].[OWST] T7  ON  T7.[WstCode]	= T0.[StepCode]
+
+
+	WHERE
+
+
+		T0.[StepCode]=17 AND
+		T0.[Status]='Y'
+)
+
+
+SELECT
+
+	T0.DocNum			AS 'Doc. No.',
+	T0.CardCode			AS 'Customer Code',
+	T0.CardName			AS 'Customer Name',
+	T0.DocStatus,
+	T3.Stage			AS 'StageOrderRevision',
+	T3.Status			AS 'OrderRevsionStatus',
+	T3.Authorizer		AS 'AuthorizerOrderRevision',
+	CASE
+		WHEN T3.Status='Approved'	THEN 'Issue Production Ticket'
+	END Stg1,
+	T4.Stage			AS 'StageCreditLimit',
+	T4.Status			AS 'CreditLimitStatus',
+	T4.Authorizer		AS 'AuthorizerCreditLimit',
+	T4.Remarks			AS 'RemarksCL',
+	CASE
+		WHEN T4.Status='Approved'	THEN 'Prepare shipment'
+	END Stg2,
+	T0.DocDueDate		AS 'Delivery Date',
+	T1.SlpName			AS 'Sales Employee'
+
+
+FROM ORDR T0
+
+	LEFT JOIN OSLP T1 ON T1.SlpCode=T0.SlpCode
+	INNER JOIN OCRD T2 ON T2.CardCode=T0.CardCode
+	LEFT JOIN ApprovalStatus T3 ON T3.CardCode=T0.CardCode AND T3.[Document No.]=T0.DocNum
+	LEFT JOIN ApprovalDecision T4 ON T4.CardCode=T0.CardCode AND T3.[Document No.]=T0.DocNum
+
+
+WHERE
+
+	T0.DocStatus='O'		AND
+	T0.Confirmed='Y'		AND
+	T2.QryGroup1='N'

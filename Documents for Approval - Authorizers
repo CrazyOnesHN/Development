@@ -1,0 +1,36 @@
+SELECT
+
+	T0.[WddCode] ,
+	T0.[StepCode] ,
+	T0.[UserID] ,
+	CASE
+		WHEN T0.Status='W' THEN 'Pending'
+		WHEN T0.Status='Y' THEN	'Approved'
+		WHEN T0.Status='N' THEN	'Rejected'
+	END Status_,
+	T0.[Remarks] ,
+	T0.[UserSign] ,
+	T0.[CreateDate] ,
+	T0.[CreateTime] ,
+	T0.[UpdateDate] ,
+	T0.[UpdateTime] ,
+	T0.[SortId] ,
+	T0.[AuthUpdDat] ,
+	T0.[AuthUpdTim]
+
+FROM  [dbo].[WDD1] T0
+
+	INNER  JOIN [dbo].[OWDD] T1  ON  T1.[WddCode] = T0.[WddCode]
+	INNER  JOIN [dbo].[OUSR] T2  ON  T2.[USERID] = T1.[OwnerID]
+	INNER  JOIN [dbo].[OUSR] T3  ON  T3.[USERID] = T0.[UserID]
+	INNER  JOIN [dbo].[OWTM] T4  ON  T4.[WtmCode] = T1.[WtmCode]
+
+WHERE
+
+	T3.[U_NAME] >= 'Theresa Farley'  AND  T3.[U_NAME] <= 'Theresa Farley'  AND
+	T0.[CreateDate] >= '2022-04-18 00:00:00'  AND  T0.[CreateDate] <= '2022-04-18 00:00:00'  AND
+	(T0.[Status] = 'Y'  OR  T0.[Status] = 'N')
+
+ORDER BY
+T0.[WddCode],
+T0.[UserID]

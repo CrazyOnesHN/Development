@@ -12,7 +12,7 @@ WITH ApprovalStatus AS
 			WHEN T1.ObjType=17 THEN 'Sales Order'
 		END DocumentType,
 		T6.CardCode,
-		T6.DocNum					'Document No.',
+		T6.DocNum									'Document No.',
 
 		(SELECT U_NAME FROM [OUSR] where USERID=T0.UserID)			AS 'Authorizer',
 
@@ -39,8 +39,8 @@ WITH ApprovalStatus AS
 
 	WHERE
 
-		T1.WtmCode=23		AND
-		T1.ObjType=17		AND
+		T1.WtmCode=23			AND
+		T1.ObjType=17			AND
 		T0.StepCode=20		AND
 		T1.IsDraft='N'		AND
 		T0.Status IN ('Y','W','N')
@@ -63,7 +63,7 @@ ApprovalDecision AS
 		END Status,
 		T0.[Remarks] ,
 		T0.[UpdateDate]				AS 'Answer Date',
-		T7.Remarks					AS 'Stage',
+		T7.Remarks						AS 'Stage',
 		T0.StepCode
 
 
@@ -89,18 +89,18 @@ ApprovalDecision AS
 
 SELECT
 
-	T0.DocNum			AS 'Doc. No.',
+	T0.DocNum				AS 'Doc. No.',
 	T0.CardCode			AS 'Customer Code',
 	T0.CardName			AS 'Customer Name',
 	T0.DocStatus,
-	T3.Stage			AS 'StageOrderRevision',
-	T3.Status			AS 'OrderRevsionStatus',
+	T3.Stage				AS 'StageOrderRevision',
+	T3.Status				AS 'OrderRevsionStatus',
 	T3.Authorizer		AS 'AuthorizerOrderRevision',
 	CASE
 		WHEN T3.Status='Approved'	THEN 'Issue Production Ticket'
 	END Stg1,
-	T4.Stage			AS 'StageCreditLimit',
-	T4.Status			AS 'CreditLimitStatus',
+	T4.Stage				AS 'StageCreditLimit',
+	T4.Status				AS 'CreditLimitStatus',
 	T4.Authorizer		AS 'AuthorizerCreditLimit',
 	T4.Remarks			AS 'RemarksCL',
 	CASE

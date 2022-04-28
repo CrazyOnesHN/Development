@@ -1,0 +1,30 @@
+USE [KINYO_DEV]
+GO
+/****** Object:  UserDefinedFunction [dbo].[GET_STR_DocumentNumber]    Script Date: 4/27/2022 3:53:45 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+-- =============================================
+-- Author:		Jose Rivera
+-- Create date: 04/27/2022
+-- Description:	PULL UP DOCNUM WHEN THE SO IS ALREADY APPROVED
+-- =============================================
+ALTER FUNCTION [dbo].[GET_STR_DocumentNumber]
+(
+	-- Add the parameters for the function here
+	@DraftEntry	INT
+)
+RETURNS INT
+AS
+BEGIN
+	-- Declare the return variable here
+	DECLARE @DocNum	INT
+
+	-- Add the T-SQL statements to compute the return value here
+	SELECT @DocNum=DocNum FROM ORDR WHERE draftKey=@DraftEntry
+
+	-- Return the result of the function
+	RETURN @DocNum
+
+END

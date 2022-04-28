@@ -1,0 +1,56 @@
+USE [KINYO_DEV]
+GO
+/****** Object:  UserDefinedFunction [dbo].[GET_STR_WDD1]    Script Date: 4/27/2022 3:52:51 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+-- =============================================
+-- Author:		Jose Rivera
+-- Create date: 04/27/2022
+-- Description:	BUILDING THE STRING
+-- =============================================
+ALTER FUNCTION [dbo].[GET_STR_WDD1]
+(
+	-- Add the parameters for the function here
+	@WddCode	INT,
+	@StepCode	INT
+)
+RETURNS  NVARCHAR(200)
+AS
+BEGIN
+	-- Declare the return variable here
+	DECLARE @STR NVARCHAR(200)
+
+	-- Add the T-SQL statements to compute the return value here
+	SELECT
+
+	@STR=
+	('Stage: ' + CASE
+					WHEN T0.[StepCode]=20 THEN 'Order Revision'
+					WHEN T0.[StepCode]=17 THEN 'Credit Limit'
+				 END
+	+ ' ' + ' / ' +
+	'Authorizer: ' + CASE
+						WHEN T0.UserID=T1.USERID THEN T1.U_NAME
+					END
+	+ ' ' + ' / ' +
+	'Status: ' + CASE
+						WHEN T0.Status='W' THEN 'Pending'
+						WHEN T0.Status='Y' THEN	'Approved'
+						WHEN T0.Status='N' THEN	'Rejected'
+				 END
+	+ ' ' + ' / ' + 'Issue Draft Production Ticket')
+
+	FROM WDD1 T0
+
+		INNER  JOIN OUSR T1  ON  T1.USERID = T0.UserID
+
+
+
+	WHERE T0.WddCode=@WddCode AND T0.StepCode=@StepCode AND T0.Status='Y'
+
+	-- Return the result of the function
+	RETURN @STR
+
+END

@@ -1,0 +1,20 @@
+// This conditional formatting formula must return one of the following Color Constants:
+//
+// Color (red, green, blue)
+// crBlack
+// crMaroon
+// crGreen
+// crOlive
+// crNavy
+// crPurple
+// crTeal
+// crSilver
+// crRed
+// crLime
+// crYellow
+// crBlue
+// crFuchsia
+// crAqua
+// crWhite
+// crNoColor
+// 

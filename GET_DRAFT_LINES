@@ -1,0 +1,45 @@
+USE [KINYO_DEV]
+GO
+/****** Object:  StoredProcedure [dbo].[GET_DRAFT_LINES]    Script Date: 5/31/2022 8:23:14 AM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+-- =============================================
+-- Author:		Jose Rivera
+-- Create date: 04/28/2022
+-- Description:	BUILD THE DRAFT SALES ORDER USING ON THE  FLY PROCESS
+-- =============================================
+ALTER PROCEDURE [dbo].[GET_DRAFT_LINES]
+	-- Add the parameters for the stored procedure here
+	@DocEntry	INT
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+
+    -- Insert statements for procedure here
+	SELECT
+
+	T0.DocEntry,
+	T0.LineNum,
+	T0.ItemCode,
+	T1.U_Punch,
+	T1.U_Bar1,
+	T1.U_Bar2,
+	T1.U_Press,
+	([dbo].[C_MM_INCH] (T1.SHeight1))								'Gauge(in)',
+	([dbo].[C_MM_INCH] (T1.SLength1))								'Around(in)',
+	([dbo].[C_MM_INCH] (T1.SWidth1))								'Across(in)',
+	T0.Quantity,
+	T1.U_Spec1
+
+	FROM DRF1 T0
+
+		INNER JOIN OITM T1 ON T1.ItemCode=T0.ItemCode
+
+	WHERE
+
+	T0.DocEntry=5763
+END

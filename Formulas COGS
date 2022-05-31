@@ -1,0 +1,95 @@
+
+
+
+-- this calculation coming from STANDARD COST CALCULATION PER ITEMCODE crystal report
+-- Item Labor Cost
+If {@LaborCost}+({@SetupLaborHrs}*{@LaborRate})=0 then 0
+else {@LaborCost}+({@SetupLaborHrs}*{@LaborRate})
+
+-- Item Labor Hrs
+{@LaborHrs}+{@SetupLaborHrs}
+
+-- Item Labor OH Cost
+If {@LaborOHCost}+({@SetupLOHHrs}*{@LaborOHRate})=0 then 0
+else {@LaborOHCost}+({@SetupLOHHrs}*{@LaborOHRate})
+
+-- Item Labor OH Hrs
+{@LaborOHHrs}+{@SetupLOHHrs}
+
+-- Item MFGOH Cost
+If {@MFGOHCost}+({@SetupMFGOHHrs}*{@MFGOHRate})=0 then 0
+else {@MFGOHCost}+({@SetupMFGOHHrs}*{@MFGOHRate});
+
+-- item MFGOH Hrs
+{@MFGOHHrs}+{@SetupMFGOHHrs}
+
+-- Loss
+shared numbervar LossPerc;
+
+If isnull({T_BOMEX.Loss}) or {T_BOMEX.Loss}='' then LossPerc:=0
+else
+    LossPerc:=ToNumber({T_BOMEX.Loss})/100;
+
+-- Setup labor Hrs
+shared numbervar SetupLaborHrs;
+
+If isnull({T_BOMEX.SetupLaborFG}) or {T_BOMEX.StdProdQtyFG}='0' or {T_BOMEX.StdProdQtyFG}=""  then SetupLaborHrs:=0
+else SetupLaborHrs:= {T_BOMEX.SetupLaborFG}/ToNumber({T_BOMEX.StdProdQtyFG})
+
+-- SetupLOHHrs
+shared numbervar SetupLOHHrs;
+
+If isnull({T_BOMEX.SetupLaborFG}) or {T_BOMEX.StdProdQtyFG}='0'  or {T_BOMEX.StdProdQtyFG}="" then SetupLOHHrs:=0
+else SetupLOHHrs:= {T_BOMEX.SetupLaborFG}/ToNumber({T_BOMEX.StdProdQtyFG});
+
+-- SetupMFGOHHrs
+
+shared numbervar SetupMFGOHHrs;
+
+if isnull({T_BOMEX.SetupMFGOHFG}) or {T_BOMEX.StdProdQtyFG}='0'  or {T_BOMEX.StdProdQtyFG}="" then SetupMFGOHHrs:=0
+else SetupMFGOHHrs:= {T_BOMEX.SetupMFGOHFG}/ToNumber({T_BOMEX.StdProdQtyFG});
+
+-- Standar Cost
+if isnull({T_BOMEX.FactorFG}) then {@TotalCost}
+else {@TotalCost}+{T_BOMEX.FactorFG};
+
+-- Total Cost
+{@AdjustedLvlBelow}+{@RawMaterialCost}+{@ItemLaborCost}+{@ItemLaborOHCost}+{@ItemMFGOHCost}+{@FabricCost}
+
+
+
+-- this calculation coming from COST ROLLUP COST DISTRIBUTION  crystal report
+
+-- FGFabricCost
+{Z_COST.Fabric}+{@FabricL1}
+
+-- FGLaborCost
+{Z_COST.LaborCost}+{@LaborCostL1}
+
+-- FGLaborHrs
+{Z_COST.LaborHrs}+{@LaborHrsL1}
+
+-- FGLaborOHCost
+{Z_COST.LaborOHCost}+{@LaborOHCostL1}
+
+-- FGLaborOHHrs
+{Z_COST.LaborOHHrs}+{@LaborOHHrsL1}
+
+-- FGMFGOHCost
+{Z_COST.MFGOHCost}+{@MFGOHCostL1}
+
+-- FGMFGOHHrs
+{Z_COST.MFGOHHrs}+{@MFGOHHrsL1}
+
+-- FGRawMaterialCost
+{Z_COST.RawMaterial}+{@RawMaterialL1}
+
+-- FGTotalCost
+{@FGFabricCost}+{@FGRawMaterialCost}+{@FGLaborCost}+{@FGLaborOHCost}+{@FGMFGOHCost}
+
+-- QtyL1
+shared numbervar QtyL1;
+QtyL1:= {T_BOMEX.QTYL1}
+
+-- TotalCostL1
+{@FabricL1}+{@RawMaterialL1}+{@LaborCostL1}+{@LaborOHCostL1}+{@MFGOHCostL1}

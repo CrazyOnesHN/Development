@@ -1,0 +1,47 @@
+USE [KINYO_DEV]
+GO
+/****** Object:  StoredProcedure [dbo].[FETCH_DRAFT_LN]    Script Date: 5/31/2022 8:22:38 AM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+-- =============================================
+-- Author:		<Author,,Name>
+-- Create date: <Create Date,,>
+-- Description:	<Description,,>
+-- =============================================
+ALTER PROCEDURE [dbo].[FETCH_DRAFT_LN]
+	-- Add the parameters for the stored procedure here
+	@DraftEntry		INT
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+
+    -- Insert statements for procedure here
+	SELECT
+
+	T0.DocEntry,
+	T0.LineNum,
+	T0.ItemCode,
+	T1.ItemName,
+	T1.U_Punch,
+	T1.U_Bar1,
+	T1.U_Bar2,
+	T1.U_Press,
+	([dbo].[C_MM_INCH] (T1.SHeight1))								'Gauge(in)',
+	([dbo].[C_MM_INCH] (T1.SLength1))								'Around(in)',
+	([dbo].[C_MM_INCH] (T1.SWidth1))								'Across(in)',
+	T0.Quantity,
+	T1.U_Spec1,
+	T1.U_Spec2
+
+	FROM DRF1 T0
+
+		INNER JOIN OITM T1 ON T1.ItemCode=T0.ItemCode
+
+	WHERE
+
+	T0.DocEntry=@DraftEntry
+END

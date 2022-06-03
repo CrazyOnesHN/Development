@@ -54,3 +54,35 @@ BEGIN
 	RETURN @STR
 
 END
+
+
+
+ALTER FUNCTION [dbo].[GET_STR_WDD1]
+(
+	-- Add the parameters for the function here
+	@WddCode	INT,
+	@StepCode	INT
+)
+RETURNS  NVARCHAR(200)
+AS
+BEGIN
+	-- Declare the return variable here
+	DECLARE @STR NVARCHAR(200)
+
+	-- Add the T-SQL statements to compute the return value here
+	SELECT
+
+	@STR=('Issue Draft Ticket No.' + ' - ' + ' ' + CAST(@WddCode AS VARCHAR))
+
+	FROM WDD1 T0
+
+		INNER  JOIN OUSR T1  ON  T1.USERID = T0.UserID
+
+
+
+	WHERE T0.WddCode=@WddCode AND T0.StepCode=@StepCode AND T0.Status='Y'
+
+	-- Return the result of the function
+	RETURN @STR
+
+END

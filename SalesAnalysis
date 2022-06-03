@@ -1,0 +1,29 @@
+DECLARE @Start DATETIME = '2021-01-02 00:00:00'
+DECLARE @End DATETIME = '2021-12-31 00:00:00'
+
+
+
+SELECT
+
+T3.SlpName,
+T0.DocNum,
+T0.DocDate,
+DAY(T0.DocDate)				AS 'Day',
+MONTH(T0.DocDate)			AS 'Month',
+DATENAME(m, T0.DocDate)		AS 'MonthName',
+YEAR(T0.DocDate)			AS 'Year',
+SUM(T1.LineTotal)			AS 'Sales Amount',
+SUM(T1.GrssProfit)			AS 'Gross Profit'
+
+FROM OINV T0
+
+	INNER JOIN INV1 T1 ON T1.DocEntry=T0.DocEntry
+	INNER JOIN OCRD T2 ON T2.CardCode=T0.CardCode
+	LEFT  JOIN OSLP T3 ON T3.SlpCode=T0.SlpCode
+
+WHERE
+
+	T0.DocDate >=@Start	AND	T0.DocDate <@End	AND
+	T0.CANCELED='N'		AND T2.QryGroup1='N'	AND  T0.DocType <> 'S'
+
+GROUP BY T3.SlpName,T0.DocNum,T0.DocDate

@@ -57,7 +57,7 @@ WHERE
 	T0.ObjType=17
 	--AND T0.IsDraft='Y'
 	AND  T0.CurrStep IN (17,20)
-
+DraftEntry
 
 
 	/*/

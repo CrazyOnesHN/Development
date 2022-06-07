@@ -34,6 +34,7 @@ SELECT
     T3.Quantity,
 	T3.Price,
 	T3.LineTotal
+	-ISNULL((T2.DocTotal-T2.VatSum-T2.TotalExpns-T2.RoundDif),0)
 
 
 

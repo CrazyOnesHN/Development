@@ -1,0 +1,89 @@
+exec sp_executesql N'
+SELECT
+T0.[TransSeq],
+T1.[ItemCode],
+T1.[ItemName],
+T0.[CreateDate],
+T0.[Warehouse],
+T0.[InQty],
+T0.[OutQty],
+T0.[CalcPrice],
+T0.[TransValue],
+T0.[InvntAct],
+T0.[Currency],
+T0.[Rate],
+T0.[UserSign],
+T0.[TransType],
+T0.[CreatedBy],
+T0.[BASE_REF],
+T0.[DocLineNum],
+T1.[InvntryUom],
+T1.[EvalSystem],
+T0.[DocDate],
+T0.[CostAct],
+SUM(T4.[Quantity]),
+T4.[OBVL_CalcPrice] AS ''OBVL_CalcPrice'',
+SUM(T4.[InvValue]) AS ''OBVL_InvValue'',
+T3.[CostMethod] AS ''CostingMethod'',
+T4.[RowAction] AS ''OBVL_RowAction'',
+SUM(T4.[OBVL_CalcPriceTotal]) AS ''OBVL_RowPriceSum'',
+SUM(T4.[Quantity]) AS ''OBVL_RowPriceQty'',
+SUM(T4.[TransValue]) AS ''OBVL_TransValue'',
+T1.[PrdStdCst],
+MIN(T4.[AbsEntry]) AS ''OBVL_AbsEntry'',
+SUM(T4.[OBVL_RowOutQty]) AS ''OBVL_RowOutQty''
+
+FROM  [dbo].[OINM] T0
+
+	INNER  JOIN [dbo].[OITM] T1  ON  T1.[ItemCode] = T0.[ItemCode]
+	LEFT OUTER  JOIN [dbo].[OIVK] T2  ON  T2.[INMTransSe] = T0.[TransSeq]
+	LEFT OUTER  JOIN [dbo].[OIVL] T3  ON  T3.[TransSeq] = T2.[TransSeq]
+	LEFT OUTER  JOIN [dbo].[DV202206081341326D9YXH5PZQ4OSNIB] T4  ON  T4.[ILMEntry] = T3.[MessageID]  AND  T4.[ItemCode] = T1.[ItemCode]  AND  T4.[MdAbsEntry] IS NOT NULL   AND  (T4.[ActionType] = 2  OR  (T0.[TransType] IN(@P1,@P2)   AND  T4.[ActionType] = 1 )) AND  T4.[AccumType] = 1
+
+WHERE
+	T0.[ItemCode] >= (@P3)  AND
+	T0.[ItemCode] <= (@P4)  AND
+	(T0.[TransValue] <> (@P5)  OR
+	T0.[InQty] <> (@P6)  OR
+	T0.[OutQty] <> (@P7)  OR
+	T0.[TransType] = (@P8) ) AND
+	(T0.[Warehouse] = (@P9) )
+
+GROUP BY
+	T0.[TransSeq],
+	T1.[ItemCode],
+	T1.[ItemName],
+	T0.[CreateDate],
+	T0.[Warehouse],
+	T0.[InQty],
+	T0.[OutQty],
+	T0.[CalcPrice],
+	T0.[TransValue],
+	T0.[InvntAct],
+	T0.[Currency],
+	T0.[Rate],
+	T0.[UserSign],
+	T0.[TransType],
+	T0.[CreatedBy],
+	T0.[BASE_REF],
+	T0.[DocLineNum],
+	T1.[InvntryUom],
+	T1.[EvalSystem],
+	T0.[DocDate],
+	T0.[CostAct],
+	T4.[OBVL_CalcPrice],
+	T3.[CostMethod],
+	T4.[RowAction],
+	T1.[PrdStdCst],
+	T0.[TransNum],
+	T0.[TransNum],
+	T0.[TransNum],
+	T0.[TransNum],
+	T0.[TransNum]
+
+ORDER BY
+	T1.[ItemCode],
+	T0.[TransSeq]
+
+	,31',N'@P1 int,@P2 int,@P3 nvarchar(254),@P4 nvarchar(254),@P5 numeric(25,6),@P6 numeric(25,6),@P7 numeric(25,6),@P8 int,@P9 nvarchar(254)',
+	10000071,310000001,N'88S7400/193W//',N'88S7400/193W//',0,0,0,162,N'C2'

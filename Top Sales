@@ -55,4 +55,4 @@ GROUP BY T0.DocDate, T0.DocEntry, T0.CANCELED
 
 
 
-T0.DocTotal-T0.VatSum-T0.TotalExpns-T0.RoundDif) 
+T0.DocTotal-T0.VatSum-T0.TotalExpns-T0.RoundDif)

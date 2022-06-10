@@ -1,14 +1,4 @@
--- =============================================
--- Author:		Jose Rivera
--- Create date: 04/01/22
--- Description:	We fix the bug, when you pull up the Credit notes, now you can compare Invoice Lines vs. Dashboard Top Sales 12 months.
-
--- =============================================
-
-DECLARE @BeginDate	DATETIME    =[%0]
-DECLARE @EndDate	DATETIME    =[%1]
-DECLARE @QryGroup1	VARCHAR(1)  =[%2]
-
+Invoice Summary Export or Domesctic
 
 SELECT
 
@@ -51,60 +41,48 @@ FROM OINV T0	WITH (NOLOCK)
 	LEFT OUTER JOIN OCRD T5	ON T5.CardCode=T0.CardCode
 
 WHERE
-
-    T0.DocDate>=@BeginDate              AND T0.DocDate<=@EndDate                AND
-    T0.CANCELED='N'						AND T0.DocType <> 'S'					AND T5.QryGroup1=@QryGroup1
+T0.DocDate>=[%0]	AND T0.DocDate<=[%1]	AND
+T0.CANCELED='N'						AND T0.DocType <> 'S'					AND T5.QryGroup1=[%2]
 
 UNION ALL
 
 SELECT
 
-	T1.SlpName	'Sales Employee',
-	T0.DocNum	'Credit note',
-	0 'OrderNum',
-	T0.Comments,
-	T0.DocDate,
-	T0.CardName,
-	T0.CardCode,
-	0,
-	'',
-	'',
-	0,
-	0,
-	0 'Around',
-	0 'Across',
-	0 'Gauge',
-	0 'Ship Quantity',
-	0 'Quantity',
+	T4.SlpName																AS 'Sales Employee',
+	T2.DocNum ,
 	CASE
-		WHEN T0.CANCELED = 'C' THEN SUM(T0.DocTotal-T0.VatSum-T0.TotalExpns-T0.RoundDif)
-		ELSE -SUM(T0.DocTotal-T0.VatSum-T0.TotalExpns-T0.RoundDif)
-	END 'Total'
+		WHEN T0.BaseType = '13' THEN (SELECT T4.BaseRef FROM DLN1 t4
+									  WHERE  T4.TrgetEntry = T0.BaseEntry AND
+									  T0.BaseLine = T4.LineNum AND
+									  T4.TargetType=T0.BaseType)
+		ELSE NULL
+	END																		AS 'OrderNum',
+	NULL,
+	T2.DocDate,
+	T2.Cardname																AS 'Customer',
+	T2.CardCode																AS 'CustCode',
+	T0.LineNum,
+	T0.ItemCode,
+	T0.Dscription,
+	-(T0.Price),
+	NULL,
+	T1.slength1																AS 'Around',
+	T1.swidth1																AS 'Across',
+	T1.sheight1																AS 'Gauge',
+    T0.u_ship_quantity                                                      AS 'Ship Quantity',
+    T0.Quantity,
+	--(T0.LineTotal)
+    -ISNULL((T2.DocTotal-T2.VatSum-T2.TotalExpns-T2.RoundDif),0)
 
-FROM ORIN T0
-
-	LEFT OUTER JOIN OSLP  T1 ON T1.SlpCode  = T0.SlpCode
-    LEFT OUTER JOIN OCRD  T2 on T2.cardcode = T0.cardcode
-
+FROM RIN1 T0
+	LEFT OUTER JOIN OITM  T1 ON T0.ItemCode = T1.ItemCode
+	INNER	   JOIN ORIN  T2 ON T0.DocEntry = T2.DocEntry
+	LEFT OUTER JOIN RIN12 T3 ON T0.DocEntry = T3.DocEntry
+	LEFT OUTER JOIN OSLP  T4 ON T2.SlpCode  = T4.SlpCode
+	LEFT OUTER JOIN CRD1  T5 ON T5.address  = T2.ShipToCode AND T2.cardcode = T5.cardcode AND T5.adrestype = 'S'
+	LEFT OUTER JOIN OCRD  T6 on T2.cardcode = T6.cardcode
 
 WHERE
 
-    T0.DocDate >=@BeginDate             AND T0.DocDate <=@EndDate AND
-	T0.CANCELED ='N'				    AND T2.QryGroup1 =@QryGroup1
-
-GROUP BY
-
-	T0.Comments,
-	T0.DocNum,
-	T0.DocDate,
-	T0.DocEntry,
-	T0.CANCELED,
-	T0.CardName,
-	T0.CardCode,
-	T1.SlpName
-
-
-  /*
-fotmat : 2[OINV];18[SUM];
-SQL Variables : %0[DATE|From Date];%1[DATE|To Date];%2[YES_NO|Customer Export "Y", Domestic "N"];
-  */
+	T2.DocDate >=[%0] AND T2.DocDate <=[%1] AND
+	T2.CANCELED ='N'				   AND T6.QryGroup1 =[%2]

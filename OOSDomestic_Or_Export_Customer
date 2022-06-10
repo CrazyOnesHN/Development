@@ -1,0 +1,82 @@
+USE [KINYO_DEV]
+GO
+/****** Object:  StoredProcedure [dbo].[OOSDomestic_Or_Export_Customer]    Script Date: 6/9/2022 7:58:59 AM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+-- =============================================
+-- Author:		<Author,,Name>
+-- Create date: <Create Date,,>
+-- Description:	<Description,,>
+-- =============================================
+ALTER PROCEDURE [dbo].[OOSDomestic_Or_Export_Customer]
+	-- Add the parameters for the stored procedure here
+	@BeginDate		DATETIME,
+	@EndDate		DATETIME,
+	@QryGroup1		VARCHAR(1)
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+
+    -- Insert statements for procedure here
+	SELECT
+
+	UPPER(T2.CardName)												'Customer',
+	T2.DocNum														'SO',
+	T1.LineNum,
+	T1.ItemCode,
+	([dbo].[FETCH_BATCHNO] (T1.ItemCode,T2.DocNum,T2.DocEntry))		'BatchNo.',
+	CASE
+		WHEN T3.QryGroup1='Y'	THEN (T1.U_Length)
+		WHEN T3.QryGroup1='N'	THEN ([dbo].[C_MM_INCH] (T4.SLength1))
+	END																'Length(in)',
+	CASE
+		WHEN T3.QryGroup1='Y'	THEN (T1.U_Width)
+		WHEN T3.QryGroup1='N'	THEN ([dbo].[C_MM_INCH] (T4.SWidth1))
+	END																'Width(in)',
+	CASE
+		WHEN T3.QryGroup1='Y'	THEN (T1.U_Gauge)
+		WHEN T3.QryGroup1='N'	THEN (SHeight1)
+	END																			'Gauge',
+	T1.ShipDate																	'PSD',
+	ISNULL(T1.U_Ship_Quantity,0)												'Ordered',
+	ISNULL(T0.Quantity,0)														'Delivered',
+	ISNULL(([dbo].[FETCH_RESERVED_QTY] (T1.ItemCode,T2.DocNum,T2.DocEntry)),0)	'Reserved',
+	ISNULL((T1.Quantity-T0.Quantity-T4.OnHand),0)								'Remaining',
+	T1.U_Notes,
+	T2.DocStatus,
+	T2.Confirmed,
+	CASE
+		WHEN T3.QryGroup1='Y'	THEN ISNULL(T1.U_Ship_Quantity,0)
+		WHEN T3.QryGroup1='N'	THEN ISNULL(T1.Quantity,0)
+	END																'U_Ship_Quantity'
+
+
+	FROM DLN1 T0
+
+		--FETCH Sales Order
+		RIGHT OUTER JOIN RDR1	T1 ON T1.DocEntry=T0.BaseEntry	AND T1.TrgetEntry=T0.DocEntry
+		INNER JOIN ORDR T2 ON T2.DocEntry=T1.DocEntry
+		LEFT JOIN OCRD T3 ON T3.CardCode=T2.CardCode
+		INNER JOIN OITM T4 ON T4.ItemCode=T1.ItemCode
+		LEFT  OUTER JOIN OITB T5 ON T5.ItmsGrpCod=T4.ItmsGrpCod
+
+	WHERE
+
+		T2.DocDate >=CONVERT(DATETIME,@BeginDate, 112)	AND
+		T2.DocDate <=CONVERT(DATETIME,@EndDate, 112)	AND
+		T3.QryGroup1=@QryGroup1							AND
+		T2.DocStatus='O'								AND
+		T2.Confirmed IN ('Y','N')						AND
+		T1.LineStatus='O'								AND
+		(T1.ItemCode LIKE '8%' OR T1.ItemCode LIKE '9%')
+
+	ORDER BY
+
+		T2.DocNum,
+		T1.LineNum,
+		T1.ItemCode
+END

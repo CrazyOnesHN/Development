@@ -4,11 +4,8 @@
 -- Description:	We fix the bug, when you pull up the Credit notes, now you can compare Invoice Lines vs. Dashboard Top Sales 12 months.
 -- =============================================
 
-
-
-DECLARE @BeginDate	DATETIME    =[%0]
-DECLARE @EndDate	DATETIME    =[%1]
-DECLARE @QryGroup1	VARCHAR(1)  =[%2]
+DECLARE @BeginDate	DATETIME ='20220101'
+DECLARE @EndDate	DATETIME ='20220131'
 
 
 SELECT
@@ -66,59 +63,57 @@ FROM DLN1 T0
 
 WHERE
 	T4.DocDate >=@BeginDate	AND	T4.DocDate <=@EndDate	AND
-	T4.CANCELED='N'		    AND T5.QryGroup1=@QryGroup1	AND  T4.DocType <> 'S'
+	T4.CANCELED='N'		    AND T5.QryGroup1='Y'	AND  T4.DocType <> 'S'
 
 
 UNION ALL
 
+
 SELECT
 
-	T0.DocNum	'Credit note',
-	0 'OrderNum',
-	T0.DocDate,
-	T0.DocDate,
-	T0.CardName,
-	T0.CardCode,
-	T1.SlpName	'Sales Employee',
-	'',
-	'',
-	'',
-	''			'CustPONum',
-	0,
-	'',
-	'',
-	'',
-	0 'Around',
-	0 'Across',
-	0 'Gauge',
-	0 'Ship Quantity',
-	0 'Quantity',
-	0,
+	T2.DocNum ,
 	CASE
-		WHEN T0.CANCELED = 'C' THEN SUM(T0.DocTotal-T0.VatSum-T0.TotalExpns-T0.RoundDif)
-		ELSE -SUM(T0.DocTotal-T0.VatSum-T0.TotalExpns-T0.RoundDif)
-	END 'Total'
+        WHEN T0.BaseType = '13' THEN
+        (SELECT T4.BaseRef FROM DLN1 T4 WHERE T4.TrgetEntry = T0.BaseEntry  and T0.BaseLine = T4.LineNum AND T4.TargetType=T0.BaseType)
+	ELSE NULL
+	END                                                         AS 'OrderNum',
+	T2.DocDate,
+	NULL,
+	T2.Cardname as 'Customer',
+	T2.CardCode as 'Cust Code',
+	T4.Slpname                                           AS 'Sales Employee',
 
-FROM ORIN T0
+	T2.ShipToCode,
+	T3.CityS,
+	T3.StateS,
+	T2.NumAtCard                    AS 'CustPONum',
+	T0.LineNum,
+	T0.ItemCode,
+	T1.frgnname                     AS 'Base Itemcode',
+	T1.itemname,
+	T1.slength1                     AS 'Around',
+	T1.swidth1                      AS 'Across',
+	T1.sheight1                     AS 'Gauge',
+    T0.u_ship_quantity              AS 'Ship Quantity',
+    T0.Quantity,
+	0,
+	-(T0.LineTotal)
 
-	LEFT OUTER JOIN OSLP  T1 ON T1.SlpCode  = T0.SlpCode
-	LEFT OUTER JOIN OCRD  T2 on T2.cardcode = T0.cardcode
+FROM RIN1 T0
+LEFT OUTER JOIN OITM  T1 ON T0.ItemCode = T1.ItemCode
+INNER	   JOIN ORIN  T2 ON T0.DocEntry = T2.DocEntry
+LEFT OUTER JOIN RIN12 T3 ON T0.DocEntry = T3.DocEntry
+LEFT OUTER JOIN OSLP  T4 ON T2.SlpCode  = T4.SlpCode
+LEFT OUTER JOIN CRD1  T5 ON T5.address  = T2.ShipToCode AND T2.cardcode = T5.cardcode AND T5.adrestype = 'S'
+LEFT OUTER JOIN OCRD  T6 on T2.cardcode = T6.cardcode
 
 WHERE
 
-T0.DocDate >=@BeginDate                 AND T0.DocDate <=@EndDate AND
-T0.CANCELED ='N'					    AND T2.QryGroup1=@QryGroup1
+T2.DocDate >=@BeginDate AND T2.DocDate <=@EndDate AND
+T2.CANCELED ='N'					    AND T6.QryGroup1='Y'
 
-GROUP BY
-    T0.Comments,
-    T0.DocNum,
-    T0.DocDate,
-    T0.DocEntry,
-    T0.CANCELED,
-    T0.CardName,
-    T0.CardCode,
-    T1.SlpName
-
+--ORDER BY
+--T2.DocNum
 /*
 format : 1[OINV];2[ORDR];22[SUM];
 SQL Variables : %0[DATE|From Date];%1[DATE|To Date];%2[YES_NO|Customer Export "Y", Domestic "N"];

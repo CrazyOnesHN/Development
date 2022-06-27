@@ -1,0 +1,32 @@
+USE [KINYO_DEV]
+GO
+/****** Object:  UserDefinedFunction [dbo].[GET_ACCTNAME]    Script Date: 6/27/2022 5:07:13 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+-- =============================================
+-- Author:		<Author,,Name>
+-- Create date: <Create Date, ,>
+-- Description:	<Description, ,>
+-- =============================================
+ALTER FUNCTION [dbo].[GET_ACCTNAME]
+(
+	-- Add the parameters for the function here
+	@FatherNum	NVARCHAR(15)
+
+)
+RETURNS NVARCHAR(15)
+AS
+BEGIN
+	-- Declare the return variable here
+	DECLARE @AcctName NVARCHAR(15)
+
+	-- Add the T-SQL statements to compute the return value here
+	SELECT @AcctName=T0.AcctName FROM OACT T0 WHERE T0.AcctCode=@FatherNum
+
+
+	-- Return the result of the function
+	RETURN @AcctName
+
+END

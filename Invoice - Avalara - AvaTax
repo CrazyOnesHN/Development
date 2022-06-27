@@ -1,0 +1,39 @@
+DECLARE @BeginDate	DATETIME ='20220101'
+DECLARE @EndDate	DATETIME ='20220615'
+
+SELECT
+
+T0.DocNum,
+T0.DocDate,
+T1.RefDate,
+T0.DocDueDate,
+T0.CardCode,
+T0.CardName,
+T0.U_ABBA_ShipState,
+UPPER(T5.Name)			'StateName',
+T0.U_ABBA_ShipCountry,
+T0.U_ABBA_AvalaraPost,
+T0.U_ABBA_AvalaraTaxAmnt,
+T0.U_ABBA_CalcTax,
+T0.DocTotal,
+T0.VatSum,
+T0.U_ABBA_CCHUniqueID,
+T0.TransId,
+T1.Memo,
+T2.Account,
+T3.AcctName,
+T2.Credit
+
+FROM OINV T0
+
+	LEFT  JOIN OJDT T1 ON T1.TransId=T0.TransId
+	LEFT  JOIN JDT1 T2 ON T2.TransId=T1.TransId	AND T2.Account='_SYS00000000146'
+	LEFT  JOIN OACT T3 ON T3.AcctCode=T2.Account
+	INNER JOIN OCRD T4 ON T4.CardCode=T0.CardCode
+	INNER JOIN OCST T5 ON T5.Code=T0.U_ABBA_ShipState AND T5.Country=T0.U_ABBA_ShipCountry
+
+WHERE
+
+T0.DocDate >=@BeginDate AND
+T0.DocDate <=@EndDate	AND
+T0.CANCELED ='N'		AND T0.U_ABBA_AvalaraPost IS NOT NULL AND T0.VatSum <>0

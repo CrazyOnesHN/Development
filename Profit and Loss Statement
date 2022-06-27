@@ -1,0 +1,103 @@
+
+DECLARE @BeginDate	DATETIME ='20220501'
+DECLARE @EndDate	DATETIME ='20220531'
+
+USE [KINYO_DEV]
+GO
+/****** Object:  StoredProcedure [dbo].[GET_PROFIT_AND_LOSS_STATE]    Script Date: 6/27/2022 5:06:34 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+-- =============================================
+-- Author:		<Author,,Name>
+-- Create date: <Create Date,,>
+-- Description:	<Description,,>
+-- =============================================
+ALTER PROCEDURE [dbo].[GET_PROFIT_AND_LOSS_STATE]
+	-- Add the parameters for the stored procedure here
+	@BeginDate	DATETIME,
+	@EndDate	DATETIME
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+
+    -- Insert statements for procedure here
+	SELECT
+
+	T0.AcctCode,
+	T0.Levels,
+	T0.FatherNum,
+	T0.FatherNum + ' - ' + [dbo].[GET_ACCTNAME] (T0.FatherNum)	'AcctName',
+	T0.Segment_0 + ' - ' + 	T0.AcctName 'Name',
+	SUM(T1.Credit) 'Credit',
+	SUM(T1.Debit) 'Debit',
+	DATEPART(MONTH, T1.RefDate) 'Month',
+	T1.RefDate
+
+
+
+	FROM	dbo.[OACT] T0
+
+		LEFT OUTER JOIN JDT1 T1 ON T1.Account=T0.AcctCode
+
+	WHERE
+
+		T0.[GrpLine] <> 0			AND
+		T1.[RefDate] >=@BeginDate	AND
+		T1.[RefDate] <=@EndDate		AND
+		T1.[TransType] <> -3		AND
+		T0.FatherNum IN ('4010','4020','4050','4060','5000','5100',
+						 '6000','6100','6700','6710','6770','7100',
+						 '8000','8010','8020','8030','8040','8050',
+						 '8060','8070')
+
+
+	GROUP BY
+		T0.FatherNum,
+		T0.AcctCode,
+		T0.AcctName,
+		T0.GroupMask,
+		T0.GrpLine,
+		T0.AccntntCod,
+		T1.RefDate,
+		T0.Segment_0,
+		T0.Levels
+
+
+	--ORDER BY
+	--	T1.RefDate,
+	--	T0.AcctCode
+END
+
+
+/*
+',N'@P1 datetime2,@P2 datetime2,@P3 nvarchar(254)','2022-01-01 00:00:00','2022-06-30 00:00:00',N'-3'
+
+
+exec sp_executesql N'SELECT T0.[AcctCode] , T0.[AcctName] , T0.[CurrTotal] , T0.[EndTotal] , T0.[Finanse] ,
+T0.[Groups] , T0.[Budget] , T0.[Frozen] , T0.[Free_2] , T0.[Postable] , T0.[Fixed] , T0.[Levels] , T0.[ExportCode] ,
+T0.[GrpLine] , T0.[FatherNum] , T0.[AccntntCod] , T0.[CashBox] , T0.[GroupMask] , T0.[RateTrans] ,
+T0.[TaxIncome] , T0.[ExmIncome] , T0.[ExtrMatch] , T0.[IntrMatch] , T0.[ActType] , T0.[Transfered] , T0.[BlncTrnsfr] ,
+T0.[OverType] , T0.[OverCode] , T0.[SysMatch] , T0.[PrevYear] , T0.[ActCurr] , T0.[RateDifAct] , T0.[SysTotal] , T0.[FcTotal] ,
+T0.[Protected] , T0.[RealAcct] , T0.[Advance] , T0.[CreateDate] , T0.[UpdateDate] , T0.[FrgnName] , T0.[Details] , T0.[ExtraSum] ,
+T0.[Project] , T0.[RevalMatch] , T0.[DataSource] , T0.[LocMth] , T0.[MTHCounter] , T0.[BNKCounter] , T0.[UserSign] , T0.[LocManTran] ,
+T0.[LogInstanc] , T0.[ObjType] , T0.[ValidFor] , T0.[ValidFrom] , T0.[ValidTo] , T0.[ValidComm] , T0.[FrozenFor] , T0.[FrozenFrom] ,
+T0.[FrozenTo] , T0.[FrozenComm] , T0.[Counter] , T0.[Segment_0] , T0.[Segment_1] , T0.[Segment_2] , T0.[Segment_3] , T0.[Segment_4] ,
+T0.[Segment_5] , T0.[Segment_6] , T0.[Segment_7] , T0.[Segment_8] , T0.[Segment_9] , T0.[FormatCode] , T0.[CfwRlvnt] , T0.[ExchRate] ,
+T0.[RevalAcct] , T0.[LastRevBal] , T0.[LastRevDat] , T0.[DfltVat] , T0.[VatChange] , T0.[Category] , T0.[TransCode] , T0.[OverCode5] ,
+T0.[OverCode2] , T0.[OverCode3] , T0.[OverCode4] , T0.[DfltTax] , T0.[TaxPostAcc] , T0.[AcctStrLe] , T0.[MeaUnit] , T0.[BalDirect] ,
+T0.[UserSign2] , T0.[PlngLevel] , T0.[MultiLink] , T0.[PrjRelvnt] , T0.[Dim1Relvnt] , T0.[Dim2Relvnt] , T0.[Dim3Relvnt] , T0.[Dim4Relvnt] ,
+T0.[Dim5Relvnt] , T0.[AccrualTyp] , T0.[DatevAcct] , T0.[DatevAutoA] , T0.[DatevFirst] , T0.[SnapShotId] , T0.[PCN874Rpt] , T0.[SCAdjust] ,
+T0.[BPLId] , T0.[BPLName] , T0.[SubLedgerN] , T0.[VATRegNum] , T0.[ActId] , T0.[ClosingAcc] , T0.[PurpCode] , T0.[RefCode] , T0.[BlocManPos] ,
+T0.[PriAccCode] , T0.[CstAccOnly] , T0.[AlloweFrom] , T0.[AllowedTo] , T0.[BalanceA] , T0.[RmrkTmpt] , T0.[CemRelvnt] , T0.[CemCode] , T0.[StdActCode] ,
+T0.[TaxonCode] , T0.[InClassTyp] , T0.[InClassCat] , T0.[ExClassTyp] , T0.[ExClassCat]
+FROM [dbo].[OACT] T0
+
+WHERE T0.[GrpLine] <> (@P1)
+
+ORDER BY T0.[GroupMask],T0.[GrpLine]',N'@P1 int',0
+
+*/

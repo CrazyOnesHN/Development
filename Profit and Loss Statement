@@ -100,4 +100,9 @@ WHERE T0.[GrpLine] <> (@P1)
 
 ORDER BY T0.[GroupMask],T0.[GrpLine]',N'@P1 int',0
 
+SELECT "OACT"."GroupMask", "OACT"."FatherNum", "OACT"."AcctName", "JDT1"."Debit", "JDT1"."Credit", "OFPR"."F_RefDate", "OJDT"."RefDate", "OACT"."AccntntCod"
+FROM   (("OJDT" "OJDT" INNER JOIN "JDT1" "JDT1" ON "OJDT"."TransId"="JDT1"."TransId") INNER JOIN "OFPR" "OFPR" ON "OJDT"."FinncPriod"="OFPR"."AbsEntry") INNER JOIN "OACT" "OACT" ON "JDT1"."Account"="OACT"."AcctCode"
+WHERE  ("OJDT"."RefDate">={ts '2022-01-01 00:00:00'} AND "OJDT"."RefDate"<{ts '2022-06-28 00:00:01'}) AND "OACT"."GroupMask">3
+ORDER BY "OACT"."GroupMask", "OACT"."FatherNum", "OACT"."AcctName"
+
 */

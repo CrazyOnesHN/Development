@@ -1,0 +1,19 @@
+SELECT
+
+	T0.[ItemCode], T0.[CardCode],
+	T0.[Substitute], T0.[U_Press],
+	T0.[Substitute], T0.[ItemCode],
+	T0.[U_Bar1], T0.[U_Bar2],
+	T0.[U_Around], T0.[U_Across],
+	T0.[U_Spec1], T0.[U_Spec2]
+
+FROM [dbo].[OSCN] T0
+
+WHERE T0.[CardCode] = 'C008570'
+
+ORDER BY
+
+	T0.[U_Press],
+	T0.[ItemCode],
+	T0.[CardCode],
+	T0.[Substitute]

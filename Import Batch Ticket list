@@ -1,0 +1,43 @@
+
+Select distinct
+
+DocEntry,
+DocNum,
+DocDate,
+CardCode,
+CardName,
+Comments,
+DocDueDate
+
+from
+
+(Select
+B.DocEntry,
+B.DocNum,
+B.DocDate,
+B.CardCode,
+B.CardName,
+B.Comments,
+B.DocDueDate,
+A.OpenQty ,
+(( A.OpenQty-(select ISNULL(sum(U_QTYALLOC), 0)
+
+from
+  dbo.[@BMM_PNFGALLOC] AS D
+
+INNER JOIN dbo.[@BMM_PNMAST] AS E ON E.U_BATCHNO=D.U_BATCHNO
+
+where
+
+D.U_DOCENTRY=B.DocEntry 	AND
+A.DocEntry=B.DocEntry 	and
+U_PARENTDOCLINNO =A.LineNum AND
+E.U_BATCHSTATUS<>6))*A.NumPerMsr) As Qty
+
+FROM RDR1 (NoLock) A ,ORDR (NoLock) B
+
+where
+A.DocEntry=B.DocEntry And
+A.LineStatus ='O' And
+B.CANCELED ='N' And
+B.DocType='I' ) X where X.Qty>0   FOR BROWSE 

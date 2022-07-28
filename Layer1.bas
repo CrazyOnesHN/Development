@@ -117,7 +117,7 @@ Public Function TextOnly(TextValue) As String
 
 End Function
 
-Public Function NumberOnly(TextValue) As Double
+Public Function NumberOnly(TextValue) As Variant
 
     Dim i As Long
     Dim n As String
@@ -128,7 +128,10 @@ Public Function NumberOnly(TextValue) As Double
             n = n & Mid(TextValue, i, 1)
         End If
     Next i
-    NumberOnly = n
-
+    If n > 0 Then
+        NumberOnly = n
+    Else
+        NumberOnly = ""
+    End If
 End Function
 

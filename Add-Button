@@ -1,0 +1,92 @@
+Private Sub cmdAdd_Click()
+
+    Dim ctr As Control
+    Dim InpReq As Boolean
+    Dim rowMaster As Long
+    
+    On Error GoTo errorHandle
+    
+'validate required fields on frmCustomer
+
+    InpReq = True
+    For Each ctr In Me.Controls
+        If TypeName(ctr) = "TextBox" Then
+            If ctr.Tag = "required" Then
+                If ctr.Text = "" Then
+                    InpReq = False
+                End If
+            End If 'tag
+        End If 'typename
+    Next ctr
+
+    If InpReq = False Then
+        MsgBox "Please input the required fields which are marked with ""*""" & vbNewLine & _
+        vbCritical, "Input incomplete"
+        Me.txtCustomerName.SetFocus
+        Exit Sub
+    End If
+
+
+'add data to CustMasterData - Sheet2
+
+    With CustMasterData
+    
+        If Me.cmdAdd.Caption = "Update" Then
+            rowMaster = EditNum
+        Else
+            rowMaster = .ListObjects("CustMasterData").Range.Rows.Count + 1
+        End If
+        
+        .Range("A" & rowMaster) = Me.txtCustomerCode
+        .Range("B" & rowMaster) = Me.txtCustomerName
+        .Range("C" & rowMaster) = Me.txtBillTo
+        .Range("D" & rowMaster) = Me.txtShipTo
+        .Range("E" & rowMaster) = Me.cboPaymentTerms.Value
+        .Range("F" & rowMaster) = Me.txtPhone
+        .Range("G" & rowMaster) = Me.txtFax
+        .Range("H" & rowMaster) = Me.txtEmail
+        .Range("I" & rowMaster) = Me.txtContactPerson
+    
+    
+    End With
+    
+    Unload Me
+    MsgBox "Customer data has been updated", vbInformation, "Updated!"
+    Exit Sub
+
+errorHandle:
+    MsgBox "It looks like an error has occurred! Please make sure you have followed the instructions.", vbCritical
+    Unload Me
+
+End Sub
+
+
+Private Sub cmdEdit_Click()
+
+    EditNum = Me.lstCustomer.ListIndex
+    If EditNum = -1 Then
+        
+        MsgBox "Nothing has been selected"
+    
+    Else
+        
+        EditNum = EditNum + 2
+        'copy values from listbox to frmCustomer
+        frmCustomer.txtCustomerCode = CustMasterData.Range("A" & EditNum)
+        frmCustomer.txtCustomerName = CustMasterData.Range("B" & EditNum)
+        frmCustomer.txtBillTo = CustMasterData.Range("C" & EditNum)
+        frmCustomer.txtShipTo = CustMasterData.Range("D" & EditNum)
+        frmCustomer.cboPaymentTerms.Value = CustMasterData.Range("E" & EditNum)
+        frmCustomer.txtPhone = CustMasterData.Range("F" & EditNum)
+        frmCustomer.txtFax = CustMasterData.Range("G" & EditNum)
+        frmCustomer.txtEmail = CustMasterData.Range("H" & EditNum)
+        frmCustomer.txtContactPerson = CustMasterData.Range("I" & EditNum)
+        
+        Unload Me
+        frmCustomer.cmdAdd.Caption = "Update"
+        frmCustomer.Show
+      
+      End If
+
+
+End Sub

@@ -95,7 +95,9 @@ WHERE
 T2.DocDate >=@BeginDate AND T2.DocDate <=@EndDate AND
 T2.CANCELED ='N'					    AND T6.QryGroup1=@QryGroup1
 
+2[OINV];18[SUM];
 
+%0[DATE|From Date];%1[DATE|To Date];%2[YES_NO|Customer Export "Y", Domestic "N"];
   /*
 fotmat : 2[OINV];18[SUM];
 SQL Variables : %0[DATE|From Date];%1[DATE|To Date];%2[YES_NO|Customer Export "Y", Domestic "N"];

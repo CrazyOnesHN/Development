@@ -1,0 +1,45 @@
+USE [KINYO_DEVEL]
+GO
+/****** Object:  UserDefinedFunction [dbo].[FECTH_AMOUNT_CM]    Script Date: 8/15/2022 2:25:57 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+-- =============================================
+-- Author:		<Author,,Name>
+-- Create date: <Create Date, ,>
+-- Description:	<Description, ,>
+-- =============================================
+ALTER FUNCTION  [dbo].[FECTH_AMOUNT_CM]
+(
+	-- Add the parameters for the function here
+	@DocEntry	INT,
+	@BeginDate	DATETIME,
+	@EndDate	DATETIME
+)
+RETURNS NUMERIC(19,6)
+AS
+BEGIN
+	-- Declare the return variable here
+	DECLARE @Amount NUMERIC(19,6)
+
+	-- Add the T-SQL statements to compute the return value here
+	SELECT @Amount =		
+				(CASE 
+					WHEN T0.CANCELED = 'C' THEN SUM(T0.DocTotal-T0.VatSum-T0.TotalExpns-T0.RoundDif) 
+					ELSE -SUM(T0.DocTotal-T0.VatSum-T0.TotalExpns-T0.RoundDif) 
+				END )
+	
+	FROM ORIN T0 WITH (NOLOCK)
+
+	WHERE 
+	T0.DocEntry=@DocEntry			AND
+	T0.DocDate	BETWEEN @BeginDate	AND @EndDate
+	AND NOT EXISTS (SELECT 1 FROM RIN1 TS1 WHERE TS1.DocEntry = T0.DocEntry AND TS1.BaseType = 203)
+	
+	GROUP BY T0.DocDate, T0.DocEntry, T0.CANCELED
+
+	-- Return the result of the function
+	RETURN @Amount
+
+END

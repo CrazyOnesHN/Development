@@ -1,0 +1,27 @@
+DECLARE @BeginDate	DATETIME    ='20220801'
+DECLARE @EndDate	DATETIME    ='20220815' 
+
+
+SELECT
+
+	
+	MAX(T0.DocNum) AS DocNum,
+	T0.DocDate AS 'Posting Date',
+	CASE 
+		WHEN T0.CANCELED = 'C' THEN SUM(T0.DocTotal-T0.VatSum-T0.TotalExpns-T0.RoundDif) 
+		ELSE -SUM(T0.DocTotal-T0.VatSum-T0.TotalExpns-T0.RoundDif) 
+	END AS 'Amount'
+
+
+FROM ORIN T0 WITH (NOLOCK)
+
+WHERE 
+
+	T0.DocDate BETWEEN @BeginDate AND @EndDate	AND 
+	NOT EXISTS (SELECT 1 FROM RIN1 TS1 WHERE TS1.DocEntry = T0.DocEntry AND TS1.BaseType = 203)
+
+GROUP BY 
+
+	T0.DocDate, 
+	T0.DocEntry, 
+	T0.CANCELED

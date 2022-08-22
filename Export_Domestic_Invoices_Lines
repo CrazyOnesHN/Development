@@ -112,6 +112,9 @@ WHERE
 T2.DocDate >=@BeginDate AND T2.DocDate <=@EndDate AND
 T2.CANCELED ='N'					    AND T6.QryGroup1='Y'
 
+1[OINV];2[ORDR];22[SUM];
+%0[DATE|From Date];%1[DATE|To Date];%2[YES_NO|Customer Export "Y", Domestic "N"];
+
 --ORDER BY
 --T2.DocNum
 /*

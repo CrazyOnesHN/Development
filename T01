@@ -1,0 +1,14 @@
+report 50100 "Radio Shows"
+{
+    UsageCategory = ReportsAnalysis;
+    ApplicationArea = Basic;
+    dataset
+    {
+        dataitem(DataItemName; "Radio Show")
+        {
+            column("No"; "No."){}
+            column("RadioShowType"; "Radio Show Type"){}
+            column("Name"; "Name"){}
+        }
+    }
+}

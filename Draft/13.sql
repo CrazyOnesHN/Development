@@ -1,0 +1,54 @@
+DECLARE @DATE_FROM	DATETIME
+DECLARE @DATE_TO	DATETIME
+DECLARE @EXTRACT	VARCHAR(10)
+
+SET @DATE_FROM=(SELECT DATEADD(MONTH, DATEDIFF(MONTH, 0, GETDATE()), 0))
+SET @EXTRACT=CONVERT(VARCHAR(8),DATEADD(MONTH,1,@DATE_FROM),112)
+SET @DATE_TO=DATEADD(DAY,-1,LEFT(@EXTRACT,6)+'01')
+
+--PRINT @DATE_FROM
+--PRINT @DATE_TO
+
+SELECT 
+
+	T0.[WddCode] , 
+	CASE
+		WHEN T0.[StepCode]=20 THEN 'Order Revision' 
+		WHEN T0.[StepCode]=17 THEN 'Credit Limit' 
+	END 'Stage', 
+	CASE
+		WHEN T0.[UserID]=T3.[USERID] THEN T3.U_NAME
+	END 'Authorizer',
+	CASE 
+		WHEN T0.Status='W' THEN 'Pending' 
+		WHEN T0.Status='Y' THEN	'Approved'
+		WHEN T0.Status='N' THEN	'Rejected'
+	END 'Answer', 	
+	T0.[UpdateDate]		'Answer Date', 
+	T0.CreateDate,
+	T0.[Remarks],
+	T0.Status,
+	T0.StepCode
+
+FROM  [dbo].[WDD1] T0  
+
+	INNER  JOIN [dbo].[OWDD] T1  ON  T1.[WddCode] = T0.[WddCode]   
+	INNER  JOIN [dbo].[OUSR] T2  ON  T2.[USERID] = T1.[OwnerID]   
+	INNER  JOIN [dbo].[OUSR] T3  ON  T3.[USERID] = T0.[UserID]   
+	INNER  JOIN [dbo].[OWTM] T4  ON  T4.[WtmCode] = T1.[WtmCode]   
+
+WHERE 
+	
+	T0.[CreateDate] >=CONVERT(DATETIME,@DATE_FROM, 112)  AND
+	T0.[CreateDate] <=CONVERT(DATETIME,@DATE_TO, 112)  AND
+	T0.[Status] ='Y'	AND 
+	T0.StepCode IN (20)		AND
+	T0.WddCode IN (5779,5780)
+
+ORDER BY
+T0.[WddCode]
+
+
+--SELECT * FROM WDD1 WHERE WddCode IN (5779,5780) AND StepCode=20 AND Status='Y'
+
+--SELECT * FROM OWST

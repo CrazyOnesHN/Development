@@ -1,0 +1,30 @@
+
+
+-- RECIBE DE PARAMETRO DOCENTRY DE OINV
+
+
+
+SELECT 
+
+T0.DocEntry,
+T0.Canceled,
+T0.DocDate,
+T3.DocEntry,
+T3.DocNum
+
+
+FROM ORCT T0 
+
+	INNER JOIN RCT2 T1 ON T1.DocNum=T0.DocNum 
+	INNER JOIN OINV T3 ON T3.DocEntry=T1.DocEntry
+
+WHERE 
+T1.DocNum=703117	AND
+T0.Canceled='N'
+
+
+
+--SELECT ISNULL(COUNT(*),0)	AS 'DocEntry' FROM RCT2 WHERE DocEntry=14734
+--SELECT [dbo].[fnInc_Pay_Inv] (14734)
+
+SELECT * FROM ORCT WHERE 

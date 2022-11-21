@@ -1,5 +1,5 @@
-declare	@BeginDate DATETIME='20220701' 
-declare @EndDate   DATETIME='20220731'
+declare	@BeginDate DATETIME='20220901' 
+declare @EndDate   DATETIME='20220930'
 declare	@SlpCode   INT=17
 
 
@@ -30,28 +30,40 @@ SELECT
 		WHEN T2.[ReconType]=18 THEN 'Interim Document'
 		WHEN T2.[ReconType]=19 THEN 'Withholding Tax Interim Account'
 	END ReconType,
-	T1.[RefDate], 
-	T1.[DueDate], 
-	T2.[ReconDate], 
-	T1.[ContraAct], 
+	T1.[RefDate]		'Posting Date', 
+	T1.[DueDate]		'Due Date', 
+	T2.[ReconDate]		'Date Closed', 	
 	T1.[LineMemo], 	
-	T0.[ReconSum], 		
+	T0.[ReconSum], 	
+	T1.BalDueDeb,
 	T2.[ReconNum], 
-	T1.[ShortName], 
-	T1.[Account],	 
-	T0.[IsCredit]
-
-
+	T1.[ShortName],
+	T2.Canceled,
+	T3.SlpCode,
+	CASE
+		WHEN T3.DocStatus='O' THEN 'Open'
+		WHEN T3.DocStatus='C' THEN 'Closed'
+	END 'DocStatus'
+	   
 FROM ITR1 T0
 
 	INNER JOIN JDT1 T1 ON T1.Line_ID=T0.TransRowId AND T1.TransId=T0.TransId
 	INNER JOIN OITR T2 ON T2.ReconNum=T0.ReconNum
-	INNER JOIN OINV T3 ON T3.DocNum=T1.BaseRef
+	LEFT JOIN OINV T3 ON T3.DocNum=T1.BaseRef
 
 
 WHERE 
 
-	T1.RefDate>=CONVERT(DATETIME,@BeginDate, 112)	AND 
-	T1.RefDate<=CONVERT(DATETIME,@EndDate, 112)		AND
-	T3.SlpCode=@SlpCode
+	T2.[ReconDate]>=CONVERT(DATETIME,@BeginDate, 112)	AND 
+	T2.[ReconDate]<=CONVERT(DATETIME,@EndDate, 112)		AND
+	T3.SlpCode=@SlpCode									AND
+	T2.Canceled='N'										
+	AND T2.[ReconType]=3 
 
+ORDER BY 
+	T1.[BaseRef]
+
+
+
+
+--SELECT * FROM ITR1 WHERE ShortName='C010023'

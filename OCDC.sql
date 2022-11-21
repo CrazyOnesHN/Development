@@ -1,0 +1,8 @@
+
+SELECT
+
+*
+
+FROM OCDC T0
+
+SELECT * FROM CDC1 

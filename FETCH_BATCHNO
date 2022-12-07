@@ -28,9 +28,9 @@ BEGIN
 
 	-- Add the T-SQL statements to compute the return value here
 	SELECT @U_BATCHNO=T0.U_BATCHNO
-
+	
 	FROM  "@BMM_PNMAST"  T0
-
+	
 	WHERE T0.U_SONUMBER=@DocNum AND T0.U_ITEMCODE=@ItemCode AND T0.U_SODOCENTRY=@DocEntry
 
 	-- Return the result of the function
@@ -38,3 +38,5 @@ BEGIN
 
 END
 GO
+
+
